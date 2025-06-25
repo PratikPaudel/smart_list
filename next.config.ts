@@ -11,6 +11,16 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Add experimental features for better compatibility
+  experimental: {
+    serverComponentsExternalPackages: ['@google-cloud/vision'],
+  },
+  // Ensure proper output
+  output: 'standalone',
+  // Handle trailing slashes
+  trailingSlash: false,
+  // Enable strict mode
+  reactStrictMode: true,
 };
 
 export default nextConfig;

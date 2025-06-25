@@ -47,7 +47,6 @@ next-env.d.ts
 .env.production.local
 
 # Google Cloud service account keys
-*.json
 service-account-key.json
 google-credentials.json
 gcp-key.json
