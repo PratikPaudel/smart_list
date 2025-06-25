@@ -34,15 +34,24 @@ export default function ListingCard({ listing, onUpdate }: ListingCardProps) {
           const urlParts = listing.image_url.split('/')
           const filePath = urlParts.slice(-2).join('/') // Get the last two parts (folder/filename)
           
-          const { data: signedUrl } = await supabase.storage
+          const { data: signedUrl, error } = await supabase.storage
             .from('product-images')
             .createSignedUrl(filePath, 3600) // 1 hour expiry
           
-          if (signedUrl?.signedUrl) {
+          if (error) {
+            console.error('Error generating signed URL:', error)
+            // Keep the original URL as fallback
+            setSecureImageUrl(listing.image_url)
+          } else if (signedUrl?.signedUrl) {
             setSecureImageUrl(signedUrl.signedUrl)
+          } else {
+            // Fallback to original URL if no signed URL generated
+            setSecureImageUrl(listing.image_url)
           }
         } catch (error) {
           console.error('Error generating signed URL:', error)
+          // Fallback to original URL
+          setSecureImageUrl(listing.image_url)
         }
       }
     }
@@ -120,12 +129,18 @@ export default function ListingCard({ listing, onUpdate }: ListingCardProps) {
     <>
       <Card className="overflow-hidden hover:shadow-lg transition-shadow">
         <div className="aspect-square relative overflow-hidden">
-          <Image
-            src={secureImageUrl}
-            alt={listing.title}
-            className="w-full h-full object-cover"
-            fill
-          />
+          {secureImageUrl ? (
+            <Image
+              src={secureImageUrl}
+              alt={listing.title}
+              className="w-full h-full object-cover"
+              fill
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+              <span className="text-gray-500 dark:text-gray-400 text-sm">No image</span>
+            </div>
+          )}
         </div>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg line-clamp-2">{listing.title}</CardTitle>

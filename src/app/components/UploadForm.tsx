@@ -255,13 +255,19 @@ export default function UploadForm({ onSuccess }: UploadFormProps) {
           ) : (
             <div className="space-y-4">
               <div className="relative">
-                <Image
-                  src={preview!}
-                  alt="Preview"
-                  width={400}
-                  height={256}
-                  className="w-full h-64 object-cover rounded-lg"
-                />
+                {preview ? (
+                  <Image
+                    src={preview}
+                    alt="Preview"
+                    width={400}
+                    height={256}
+                    className="w-full h-64 object-cover rounded-lg"
+                  />
+                ) : (
+                  <div className="w-full h-64 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                    <span className="text-gray-500 dark:text-gray-400">Loading preview...</span>
+                  </div>
+                )}
                 <Button
                   variant="destructive"
                   size="sm"

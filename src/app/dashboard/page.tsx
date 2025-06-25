@@ -199,13 +199,19 @@ export default function DashboardPage() {
                     {/* Thumbnail */}
                     <div className="flex-shrink-0">
                       <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
-                        <Image
-                          src={listing.image_url}
-                          alt={listing.title}
-                          className="w-full h-full object-cover"
-                          width={64}
-                          height={64}
-                        />
+                        {listing.image_url ? (
+                          <Image
+                            src={listing.image_url}
+                            alt={listing.title}
+                            className="w-full h-full object-cover"
+                            width={64}
+                            height={64}
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <span className="text-gray-400 text-xs">No image</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     
