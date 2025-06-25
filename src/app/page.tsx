@@ -9,12 +9,52 @@ import {
   Zap, 
   ArrowRight,
   Menu,
-  X
+  X,
+  LogOut
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/app/lib/supabase";
+import { useRouter } from "next/navigation";
+import type { User } from "@supabase/supabase-js";
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      setLoading(false);
+    };
+
+    checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/");
+  };
+
+  const handleDashboard = () => {
+    router.push("/dashboard");
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -23,28 +63,51 @@ export default function Home() {
         <nav className="container mx-auto py-3 md:py-2 relative">
           <div className="flex flex-row items-center justify-between px-4 md:px-0">
             <div className="">
-            <Link href="/" className="flex items-center">
-          <Image
-            src="/logo.png"
-            alt="Smart List Logo"
-            width={42}
-            height={42}
-            className="h-10 w-10"
-          />
-        </Link>
+              <Link href="/" className="flex items-center">
+                <Image
+                  src="/logo.png"
+                  alt="Smart List Logo"
+                  width={42}
+                  height={42}
+                  className="h-10 w-10"
+                />
+              </Link>
             </div>
 
             <div className="flex items-center gap-4">
               <ul className="flex-row items-center gap-6 hidden md:flex">
                 <li><a href="#home" className="text-sm text-blue-600 dark:text-blue-400 ease-out duration-200">Home</a></li>
                 <li><a href="#features" className="text-sm text-blue-600 dark:text-blue-400 ease-out duration-200">Features</a></li>
-                <li>
-                  <Link href="/auth/register">
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2">
-                      Join Now <ArrowRight className="ml-1 h-4 w-4" />
-                    </Button>
-                  </Link>
-                </li>
+                {user ? (
+                  <>
+                    <li>
+                      <Button 
+                        onClick={handleDashboard}
+                        className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2"
+                      >
+                        Dashboard <ArrowRight className="ml-1 h-4 w-4" />
+                      </Button>
+                    </li>
+                    <li>
+                      <Button 
+                        onClick={handleLogout}
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-gray-600 dark:text-gray-300"
+                      >
+                        <LogOut className="h-4 w-4" />
+                      </Button>
+                    </li>
+                  </>
+                ) : (
+                  <li>
+                    <Link href="/auth/register">
+                      <Button className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2">
+                        Join Now <ArrowRight className="ml-1 h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </li>
+                )}
               </ul>
               
               <ThemeToggle />
@@ -77,13 +140,36 @@ export default function Home() {
             <ul className="flex flex-col items-center gap-4">
               <li><a href="#home" className="text-sm hover:text-blue-600 dark:hover:text-blue-400 ease-out duration-200">Home</a></li>
               <li><a href="#features" className="text-sm hover:text-blue-600 dark:hover:text-blue-400 ease-out duration-200">Features</a></li>
-              <li>
-                <Link href="/auth/register">
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2">
-                    Join Now <ArrowRight className="ml-1 h-4 w-4" />
-                  </Button>
-                </Link>
-              </li>
+              {user ? (
+                <>
+                  <li>
+                    <Button 
+                      onClick={handleDashboard}
+                      className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2"
+                    >
+                      Dashboard <ArrowRight className="ml-1 h-4 w-4" />
+                    </Button>
+                  </li>
+                  <li>
+                    <Button 
+                      onClick={handleLogout}
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-gray-600 dark:text-gray-300"
+                    >
+                      <LogOut className="h-4 w-4" />
+                    </Button>
+                  </li>
+                </>
+              ) : (
+                <li>
+                  <Link href="/auth/register">
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2">
+                      Join Now <ArrowRight className="ml-1 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
         </nav>
@@ -103,30 +189,49 @@ export default function Home() {
                     <span className="text-blue-600 dark:text-blue-400">sell more products</span>
                   </h1>
                   <p className="text-base lg:text-lg text-gray-600 dark:text-gray-300 leading-relaxed max-w-lg">
-                    Join 10,000+ sellers using AI to generate professional product listings in seconds. Upload a photo, get a complete listing ready to sell.
+                    {user 
+                      ? "Welcome back! Ready to create more amazing product listings? Upload a photo and let AI generate compelling content for you."
+                      : "Join 10,000+ sellers using AI to generate professional product listings in seconds. Upload a photo, get a complete listing ready to sell."
+                    }
                   </p>
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                  <Link href="/auth/register">
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 text-base">
-                      Start Your Journey
+                  {user ? (
+                    <Button 
+                      onClick={handleDashboard}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 text-base"
+                    >
+                      Go to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
-                  </Link>
+                  ) : (
+                    <Link href="/auth/register">
+                      <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 text-base">
+                        Start Your Journey
+                      </Button>
+                    </Link>
+                  )}
                 </div>
               </div>
 
               {/* GIF Section */}
               <div className="w-full lg:w-1/2 flex justify-center lg:justify-end">
-                <div className="w-full max-w-xl">
-                  <Image 
-                    src="/smart_list.gif" 
-                    alt="Smart List Demo" 
-                    width={600} 
-                    height={450} 
-                    className="w-full h-auto rounded-xl"
-                    priority
-                  />
+                <div className="w-full max-w-xl relative">
+                  {/* Backdrop shadow */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl blur-3xl transform scale-110"></div>
+                  
+                  {/* GIF with shadow */}
+                  <div className="relative">
+                    <Image 
+                      src="/smart_list.gif" 
+                      alt="Smart List Demo" 
+                      width={600} 
+                      height={450} 
+                      className="w-full h-auto rounded-xl shadow-2xl shadow-blue-500/25 dark:shadow-blue-400/20"
+                      priority
+                      unoptimized
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -200,16 +305,16 @@ export default function Home() {
           <div className="container mx-auto px-6 md:px-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="flex items-center mb-4 md:mb-0">
-              <Link href="/" className="flex items-center">
-          <Image
-            src="/logo.png"
-            alt="Smart List Logo"
-            width={42}
-            height={42}
-            className="h-10 w-10"
-          /> 
-          <span className="ml-2 text-lg font-bold text-gray-900 dark:text-white">Smart List</span>
-        </Link>
+                <Link href="/" className="flex items-center">
+                  <Image
+                    src="/logo.png"
+                    alt="Smart List Logo"
+                    width={42}
+                    height={42}
+                    className="h-10 w-10"
+                  /> 
+                  <span className="ml-2 text-lg font-bold text-gray-900 dark:text-white">Smart List</span>
+                </Link>
               </div>
               
               <div className="flex flex-col md:flex-row items-center gap-4">

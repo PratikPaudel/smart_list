@@ -11,10 +11,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Add experimental features for better compatibility
-  experimental: {
-    serverComponentsExternalPackages: ['@google-cloud/vision'],
-  },
+  // Add server external packages for better compatibility
+  serverExternalPackages: ['@google-cloud/vision'],
   // Ensure proper output
   output: 'standalone',
   // Handle trailing slashes

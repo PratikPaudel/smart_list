@@ -141,4 +141,4 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}

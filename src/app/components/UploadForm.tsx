@@ -210,161 +210,180 @@ export default function UploadForm({ onSuccess }: UploadFormProps) {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      {/* File Upload Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Upload Product Image</CardTitle>
-          <CardDescription>
-            Upload a clear photo of your product to generate AI-powered content
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {!file ? (
-            <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                dragActive
-                  ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                  : "border-gray-300 dark:border-gray-600"
-              }`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-            >
-              <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                Drop your image here
-              </p>
-              <p className="text-gray-500 dark:text-gray-400 mb-4">
-                or click to browse
-              </p>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
-                className="hidden"
-                id="file-upload"
-              />
-              <Label htmlFor="file-upload">
-                <Button variant="outline" asChild>
-                  <span>Choose File</span>
-                </Button>
-              </Label>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="relative">
-                {preview ? (
-                  <Image
-                    src={preview}
-                    alt="Preview"
-                    width={400}
-                    height={256}
-                    className="w-full h-64 object-cover rounded-lg"
-                  />
-                ) : (
-                  <div className="w-full h-64 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                    <span className="text-gray-500 dark:text-gray-400">Loading preview...</span>
+    <div className="grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+      {/* Left Side - File Upload Section */}
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Upload Product Image</CardTitle>
+            <CardDescription>
+              Upload a clear photo of your product to generate AI-powered content
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!file ? (
+              <div
+                className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                  dragActive
+                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                    : "border-gray-300 dark:border-gray-600"
+                }`}
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+              >
+                <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                  Drop your image here
+                </p>
+                <p className="text-gray-500 dark:text-gray-400 mb-4">
+                  or click to browse
+                </p>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
+                  className="hidden"
+                  id="file-upload"
+                />
+                <Label htmlFor="file-upload">
+                  <Button variant="outline" asChild>
+                    <span>Choose File</span>
+                  </Button>
+                </Label>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="relative">
+                  {preview ? (
+                    <Image
+                      src={preview}
+                      alt="Preview"
+                      width={400}
+                      height={256}
+                      className="w-full h-64 object-cover rounded-lg"
+                    />
+                  ) : (
+                    <div className="w-full h-64 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                      <span className="text-gray-500 dark:text-gray-400">Loading preview...</span>
+                    </div>
+                  )}
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={removeFile}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <div className="flex gap-2">
+                  <Button
+                    onClick={analyzeImage}
+                    disabled={isAnalyzing}
+                    className="flex-1"
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Analyze with AI
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {isAnalyzing && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>AI Analysis in Progress</span>
+                      <span>{uploadProgress}%</span>
+                    </div>
+                    <Progress value={uploadProgress} />
                   </div>
                 )}
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  className="absolute top-2 right-2"
-                  onClick={removeFile}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
               </div>
-              
-              <div className="flex gap-2">
-                <Button
-                  onClick={analyzeImage}
-                  disabled={isAnalyzing}
-                  className="flex-1"
-                >
-                  {isAnalyzing ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      Analyze with AI
-                    </>
-                  )}
-                </Button>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Right Side - Content Form */}
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Product Details</CardTitle>
+            <CardDescription>
+              Review and edit the AI-generated content
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Product Title</Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
+                  placeholder="Enter product title..."
+                  required
+                />
               </div>
 
-              {isAnalyzing && (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>AI Analysis in Progress</span>
-                    <span>{uploadProgress}%</span>
-                  </div>
-                  <Progress value={uploadProgress} />
-                </div>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              <div className="space-y-2">
+                <Label htmlFor="description">Product Description</Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value)}
+                  placeholder="Enter product description..."
+                  rows={6}
+                  required
+                />
+              </div>
 
-      {/* Content Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Product Details</CardTitle>
-          <CardDescription>
-            Review and edit the AI-generated content
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Product Title</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
-                placeholder="Enter product title..."
-                required
-              />
-            </div>
+              <Button
+                type="submit"
+                disabled={!file || !title || !description || isUploading}
+                className="w-full"
+              >
+                {isUploading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Creating Listing...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Create Listing
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Product Description</Label>
-              <Textarea
-                id="description"
-                value={description}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value)}
-                placeholder="Enter product description..."
-                rows={4}
-                required
-              />
-            </div>
-
-            <Button
-              type="submit"
-              disabled={!file || !title || !description || isUploading}
-              className="w-full"
-            >
-              {isUploading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Creating Listing...
-                </>
-              ) : (
-                <>
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Create Listing
-                </>
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+        {/* Tips Section */}
+        <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+          <CardContent className="pt-6">
+            <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+              💡 Tips for Better Results
+            </h4>
+            <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+              <li>• Use high-quality, well-lit product photos</li>
+              <li>• Ensure the product is clearly visible and centered</li>
+              <li>• Avoid cluttered backgrounds for best AI analysis</li>
+              <li>• Review and edit the generated content before saving</li>
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
