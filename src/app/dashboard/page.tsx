@@ -11,14 +11,13 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { supabase } from "@/app/lib/supabase"
 import { ProductListing } from "@/app/types"
-import { Plus, Search, LogOut, Edit3, Eye, Calendar, MoreHorizontal } from "lucide-react"
+import { Plus, Search, LogOut, Edit3, Eye, Calendar } from "lucide-react"
 import { toast } from "sonner"
 
 export default function DashboardPage() {
   const [listings, setListings] = useState<ProductListing[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
   const router = useRouter()
 
   const checkUser = useCallback(async () => {
