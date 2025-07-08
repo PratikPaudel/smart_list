@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
     ],
   },
   // Add server external packages for better compatibility
-  serverExternalPackages: ['@google-cloud/vision'],
+  serverExternalPackages: [],
   // Ensure proper output
   output: 'standalone',
   // Handle trailing slashes
