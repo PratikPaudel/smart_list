@@ -1,6 +1,6 @@
 # 🚀 Smart List - AI-Powered Product Listing Generator
 
-Smart List is an AI-powered application that helps e-commerce sellers create compelling product descriptions by simply uploading a photo. Using Google Cloud Vision API and advanced AI, it analyzes product images and generates SEO-optimized titles and descriptions.
+Smart List is an AI-powered application that helps e-commerce sellers create compelling product descriptions by simply uploading a photo. Using Google Gemini API, it analyzes product images and generates SEO-optimized titles and descriptions.
 
 ![Smart List Demo](public/smart_list.gif)
 
@@ -25,7 +25,7 @@ Smart List is an AI-powered application that helps e-commerce sellers create com
 
 1. **Clone and install**
 ```bash
-git clone https://github.com/yourusername/smart_list.git
+git clone https://github.com/pratikpaudel/smart_list.git
 cd smart_list
 npm install
 ```
