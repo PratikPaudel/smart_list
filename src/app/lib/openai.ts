@@ -1,8 +1,24 @@
+
 // Google Gemini API for image analysis and content generation
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
-export interface VisionAnalysisResult {
+
+interface GeminiRequestPart {
+  text?: string;
+  inline_data?: {
+    mime_type: string;
+    data: string;
+  };
+}
+
+interface GeminiRequestBody {
+  contents: Array<{
+    parts: GeminiRequestPart[];
+  }>;
+}
+
+interface GeminiAnalysis {
   labels: string[];
   text: string;
   objects: string[];
@@ -10,8 +26,13 @@ export interface VisionAnalysisResult {
   confidence: number;
 }
 
-async function callGeminiAPI(prompt: string, imageBase64?: string) {
-  const requestBody: any = {
+interface GeminiContent {
+  title: string;
+  description: string;
+}
+
+async function callGeminiAPI(prompt: string, imageBase64?: string): Promise<string> {
+  const requestBody: GeminiRequestBody = {
     contents: [
       {
         parts: [
@@ -49,7 +70,7 @@ async function callGeminiAPI(prompt: string, imageBase64?: string) {
   return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 
-export async function analyzeImage(imageBuffer: Buffer): Promise<VisionAnalysisResult> {
+export async function analyzeImage(imageBuffer: Buffer): Promise<GeminiAnalysis> {
   try {
     // Convert buffer to base64
     const base64Image = imageBuffer.toString('base64');
@@ -74,7 +95,6 @@ Be extremely specific - if it's an iPhone, identify the exact model (iPhone 14 P
       throw new Error('No analysis response from Gemini');
     }
 
-
     // Extract JSON from markdown code blocks if present
     let jsonText = analysisText.trim();
     if (jsonText.startsWith('```json')) {
@@ -84,10 +104,10 @@ Be extremely specific - if it's an iPhone, identify the exact model (iPhone 14 P
     }
 
     // Parse the JSON response
-    let analysis: any;
+    let analysis: GeminiAnalysis;
     try {
       analysis = JSON.parse(jsonText);
-    } catch (parseError) {
+    } catch {
       console.warn('Failed to parse JSON response, using fallback parsing');
       analysis = {
         labels: ['product', 'item'],
@@ -120,7 +140,7 @@ Be extremely specific - if it's an iPhone, identify the exact model (iPhone 14 P
   }
 }
 
-export async function generateProductContent(analysis: VisionAnalysisResult): Promise<{ title: string; description: string }> {
+export async function generateProductContent(analysis: GeminiAnalysis): Promise<GeminiContent> {
   try {
     // Use Gemini to generate better product content based on the analysis
     const prompt = `Generate a compelling product title and description for an e-commerce listing based on this detailed analysis:
@@ -146,7 +166,6 @@ Do not include any other text, just the JSON object.`;
       throw new Error('No content response from Gemini');
     }
 
-
     // Extract JSON from markdown code blocks if present
     let jsonText = contentText.trim();
     if (jsonText.startsWith('```json')) {
@@ -156,10 +175,10 @@ Do not include any other text, just the JSON object.`;
     }
 
     // Parse the JSON response
-    let content: any;
+    let content: GeminiContent;
     try {
       content = JSON.parse(jsonText);
-    } catch (parseError) {
+    } catch {
       console.warn('Failed to parse JSON response, using fallback content generation');
       // Fallback to the original logic
       const allKeywords = [
